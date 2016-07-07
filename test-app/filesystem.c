@@ -14,7 +14,7 @@ uint32_t filelen = 0;
 int untrusted_fs_store(char *name, size_t namelen, uint8_t *data,
                        size_t datalen) {
     FILE *fo;
-    if (fopen_s(&fo, name, "wb"))
+    if ((fo=fopen(name, "wb")) == NULL)
         goto err;
     if (fwrite(data, 1, datalen, fo) != datalen)
         goto closerr;
@@ -30,29 +30,32 @@ err:
 int untrusted_fs_load(char *name, size_t namelen, uint8_t **data,
                       size_t *datalen) {
     FILE *fo;
-    fpos_t outlen = 0;
+    long outlen;
+    size_t readlen;
     uint8_t *out = NULL;
-    if (fopen_s(&fo, name, "rb"))
+    if ((fo=fopen(name, "rb")) == NULL)
         goto err;
     // get total size
     if (fseek(fo, 0, SEEK_END))
         goto closerr;
-    if (fgetpos(fo, &outlen))
-        goto closerr;
+    // get position
+    outlen=ftell(fo);
+    // and come back to begin
     if (fseek(fo, 0, SEEK_SET))
         goto closerr;
     // allocate output buffer
-    out = (uint8_t *)malloc(outlen);
+    out = (uint8_t *)malloc((uint32_t) outlen);
     if (out == NULL)
         goto closerr;
-    // read data (NOTE: not checking error on read)
-    fread_s(out, outlen, 1, outlen, fo);
+    // read data
+    if(readlen = fread(out, 1, outlen, fo) != outlen)
+        goto closerr;
     // done
     if (fclose(fo))
         goto err;
     // output data
     *data = out;
-    *datalen = outlen;
+    *datalen = readlen;
     return 0;
 closerr:
     fclose(fo);

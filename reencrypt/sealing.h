@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include <stddef.h>
 #include <stdint.h>
 
 /* seal an array

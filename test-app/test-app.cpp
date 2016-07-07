@@ -1,19 +1,20 @@
 // test-app.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 extern "C" {
-#include "make_this_a_lib.h"
 #include "tweetnacl/tweetnacl.h"
 }
+#include "nacl_box.h"
 #include "randombytes.h"
 #include "reencrypt_u.h"
 #include "sgx_urts.h"
+#include <stdio.h>
 #include <stdlib.h>
-#include <intrin.h>
 
 //#define ENCLAVE_FILE _T("reencrypt.signed.dll")
-#define ENCLAVE_FILE _T("c:/src/ftk/software/reencrypt/debug/reencrypt.signed.dll")
+//#define ENCLAVE_FILE _T("c:/src/ftk/software/reencrypt/debug/reencrypt.signed.dll")
+#define ENCLAVE_FILE "reencrypt.signed.so"
+
 #define HEXPRINT(buffer, bufferlen) do { \
 	for(uint32_t i=0; i<bufferlen; printf("%02x", buffer[i++])); \
 }while(0)
@@ -46,7 +47,7 @@ uint32_t destroy_enclave(const context &ctx)
 	return (sgx_destroy_enclave(ctx.eid) == SGX_SUCCESS ? 0 : 1);
 }
 
-int register_key(const context &ctx, cipher_t cipher, uint8_t *key,
+int register_key(const context &ctx, uint8_t *key,
 				 size_t keylen, uint64_t expiration_date,
 				 client_id *clients, size_t nclients,
 				 policy_type keys_from_policy, key_id *keys_from,
@@ -55,10 +56,13 @@ int register_key(const context &ctx, cipher_t cipher, uint8_t *key,
 	uint8_t *keyblob=NULL;
 	uint32_t keybloblen;
 	uint8_t *request_p = NULL;
-	uint32_t request_plen;
+	size_t request_plen;
 	// new key id
 	uint8_t *keytmp = NULL;
-	uint32_t keytmplen;
+	size_t keytmplen;
+	// to parse output
+	size_t keyresponselen;
+	uint8_t *keyresponse = NULL;
 
 	// nacl nonce
 	unsigned char nonce[crypto_box_NONCEBYTES];
@@ -67,7 +71,6 @@ int register_key(const context &ctx, cipher_t cipher, uint8_t *key,
 	struct key_t *k=(struct key_t*)malloc(sizeof(struct key_t));
 	memset(k, 0, sizeof(struct key_t));
 
-	k->cipher=cipher;
 	k->keylen=keylen;
 	k->key=(uint8_t*)malloc(keylen);
 	if(k->key == NULL)
@@ -108,8 +111,8 @@ int register_key(const context &ctx, cipher_t cipher, uint8_t *key,
 	}
 	// the key structure is ready - serialize it
 	key_serialize(k, &keyblob, &keybloblen);
-	uint32_t keyresponselen=0x64;
-	uint8_t *keyresponse=(uint8_t*)malloc(keyresponselen);
+	keyresponselen=0x64;
+	keyresponse=(uint8_t*)malloc(keyresponselen);
 	// generate a nonce and encrypt register_key
 	randombytes(nonce, crypto_box_NONCEBYTES);
 	box(ctx.enclavepk, ctx.sk, nonce, keyblob, keybloblen, &request_p, &request_plen);
@@ -130,11 +133,13 @@ int register_key(const context &ctx, cipher_t cipher, uint8_t *key,
 	free(keytmp);
 	free(request_p);
 	free(keyblob);
+	free(keyresponse);
 	return 0;
 err:
 	free(keytmp);
 	free(request_p);
 	free(keyblob);
+	free(keyresponse);
 	return 1;
 }
 
@@ -150,13 +155,13 @@ int reencrypt(const context &ctx, key_id key_in, key_id key_out,
 	struct request_t *request = (struct request_t *)malloc(512);
 	// to store boxed request
 	uint8_t *request_b = NULL;
-	uint32_t request_blen;
+	size_t request_blen;
 	// to store the boxed response
 	size_t response_blen = 512;
 	uint8_t response_b[512];
 	// to store the unboxed response
 	uint8_t *response = NULL;
-	uint32_t responselen;
+	size_t responselen;
 	// nacl nonce
 	unsigned char nonce[crypto_box_NONCEBYTES];
 	// reencrypt status
@@ -254,7 +259,7 @@ int main(int argc, char* argv[])
 	// authorize our client
 	memcpy(&clients[0], ctx.pk, sizeof(client_id));
 	// register key
-	if(register_key(ctx, AES128GCM, key1, 16, (uint64_t)2462838400,
+	if(register_key(ctx, key1, 16, (uint64_t)2462838400,
 					clients, 1, POLICY_ALL, NULL, 0,
 					POLICY_ALL, NULL, 0, new_key))
 	{

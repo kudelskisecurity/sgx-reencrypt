@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ciphers/aes128gcm.h"
-#include "config.h"
 #include "filesystem.h"
 #include "keyring.h"
 #include "keyring.h"

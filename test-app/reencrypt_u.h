@@ -5,9 +5,11 @@
 #include <wchar.h>
 #include <stddef.h>
 #include <string.h>
-#include "sgx_edger8r.h" /* for sgx_status_t etc. */
+#include "sgx_edger8r.h" /* for sgx_satus_t etc. */
 
 #include "types.h"
+
+#include <stdlib.h> /* for size_t */
 
 #define SGX_CAST(type, item) ((type)(item))
 

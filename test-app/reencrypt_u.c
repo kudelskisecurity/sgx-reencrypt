@@ -1,4 +1,5 @@
 #include "reencrypt_u.h"
+#include <errno.h>
 
 typedef struct ms_generate_keypair_t {
 	int ms_retval;
@@ -61,6 +62,7 @@ static sgx_status_t SGX_CDECL reencrypt_untrusted_fs_store(void* pms)
 {
 	ms_untrusted_fs_store_t* ms = SGX_CAST(ms_untrusted_fs_store_t*, pms);
 	ms->ms_retval = untrusted_fs_store(ms->ms_name, ms->ms_namelen, ms->ms_data, ms->ms_datalen);
+
 	return SGX_SUCCESS;
 }
 
@@ -68,6 +70,7 @@ static sgx_status_t SGX_CDECL reencrypt_untrusted_fs_load(void* pms)
 {
 	ms_untrusted_fs_load_t* ms = SGX_CAST(ms_untrusted_fs_load_t*, pms);
 	ms->ms_retval = untrusted_fs_load(ms->ms_name, ms->ms_namelen, ms->ms_data, ms->ms_datalen);
+
 	return SGX_SUCCESS;
 }
 
@@ -75,6 +78,7 @@ static sgx_status_t SGX_CDECL reencrypt_untrusted_fs_free(void* pms)
 {
 	ms_untrusted_fs_free_t* ms = SGX_CAST(ms_untrusted_fs_free_t*, pms);
 	untrusted_fs_free(ms->ms_data);
+
 	return SGX_SUCCESS;
 }
 
@@ -82,22 +86,22 @@ static sgx_status_t SGX_CDECL reencrypt_time(void* pms)
 {
 	ms_time_t* ms = SGX_CAST(ms_time_t*, pms);
 	ms->ms_retval = time(ms->ms_timer);
+
 	return SGX_SUCCESS;
 }
 
 static const struct {
 	size_t nr_ocall;
-	void * func_addr[4];
+	void * table[4];
 } ocall_table_reencrypt = {
 	4,
 	{
-		(void*)(uintptr_t)reencrypt_untrusted_fs_store,
-		(void*)(uintptr_t)reencrypt_untrusted_fs_load,
-		(void*)(uintptr_t)reencrypt_untrusted_fs_free,
-		(void*)(uintptr_t)reencrypt_time,
+		(void*)reencrypt_untrusted_fs_store,
+		(void*)reencrypt_untrusted_fs_load,
+		(void*)reencrypt_untrusted_fs_free,
+		(void*)reencrypt_time,
 	}
 };
-
 sgx_status_t generate_keypair(sgx_enclave_id_t eid, int* retval, uint8_t* public_key)
 {
 	sgx_status_t status;
