@@ -57,6 +57,9 @@
     <ClCompile Include="filesystem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="serialize.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="reencrypt_t.h">
@@ -99,6 +102,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="filesystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serialize.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

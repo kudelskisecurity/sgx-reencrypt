@@ -80,8 +80,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -158,7 +157,8 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="make_this_a_lib.h" />
+    <ClInclude Include="..\reencrypt\nacl_box.h" />
+    <ClInclude Include="..\reencrypt\serialize.h" />
     <ClInclude Include="randombytes.h" />
     <ClInclude Include="reencrypt_u.h" />
     <ClInclude Include="stdafx.h" />
@@ -166,8 +166,9 @@
     <ClInclude Include="tweetnacl\tweetnacl.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\reencrypt\nacl_box.c" />
+    <ClCompile Include="..\reencrypt\serialize.c" />
     <ClCompile Include="filesystem.c" />
-    <ClCompile Include="make_this_a_lib.c" />
     <ClCompile Include="randombytes.cpp" />
     <ClCompile Include="reencrypt_u.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -179,7 +180,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Prerelease|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="test-app.cpp" />
     <ClCompile Include="tweetnacl\tweetnacl.c" />
   </ItemGroup>

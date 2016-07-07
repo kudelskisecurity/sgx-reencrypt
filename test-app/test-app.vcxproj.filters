@@ -33,17 +33,17 @@
     <ClInclude Include="tweetnacl\tweetnacl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="make_this_a_lib.h">
+    <ClInclude Include="randombytes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="randombytes.h">
+    <ClInclude Include="..\reencrypt\serialize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reencrypt\nacl_box.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="test-app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -56,10 +56,13 @@
     <ClCompile Include="filesystem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="make_this_a_lib.c">
+    <ClCompile Include="randombytes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="randombytes.cpp">
+    <ClCompile Include="..\reencrypt\serialize.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\reencrypt\nacl_box.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

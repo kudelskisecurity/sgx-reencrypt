@@ -5,6 +5,7 @@
 
 #include "tweetnacl/tweetnacl.h"
 #include <stdint.h>
+#include <sgx_tcrypto.h>
 
 // return values for internal and external functions
 typedef enum reencrypt_status {
@@ -30,8 +31,11 @@ typedef uint8_t client_id[client_id_LEN];
 typedef uint8_t key_id[key_id_LEN];
 // policy types for keys-from/-to: keys from list, all
 typedef enum policy_type { POLICY_LIST, POLICY_ALL } policy_type;
-// policy structure
-struct policy_t {
+
+// key structure
+struct keydata_t {
+	sgx_aes_gcm_128bit_key_t key;
+	uint64_t expiration_date;
     // Keys-to-encrypt-from policy: ALL, LIST
     policy_type policy_from;
     // # keys accepted to encrypt from
@@ -46,13 +50,6 @@ struct policy_t {
     key_id *keys_from;
     key_id *keys_to;
     client_id *authorized_clients;
-};
-// key structure
-struct key_t {
-    uint32_t keylen;
-    uint64_t expiration_date;
-    uint8_t *key;
-    struct policy_t policy;
 };
 
 #endif

@@ -369,6 +369,7 @@
     <ClCompile Include="reencrypt_t.c" />
     <ClCompile Include="request.c" />
     <ClCompile Include="sealing.c" />
+    <ClCompile Include="serialize.c" />
     <ClCompile Include="tweetnacl\tweetnacl.c" />
     <ClCompile Include="unsafe_clock.c" />
   </ItemGroup>
@@ -384,6 +385,7 @@
     <ClInclude Include="reencrypt_t.h" />
     <ClInclude Include="request.h" />
     <ClInclude Include="sealing.h" />
+    <ClInclude Include="serialize.h" />
     <ClInclude Include="tweetnacl\tweetnacl.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="unsafe_clock.h" />

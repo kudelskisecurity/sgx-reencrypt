@@ -1,4 +1,7 @@
+#include "reencrypt_t.h"
 #include "reencrypt.h"
+#include "serialize.h"
+
 
 #define KEYPAIR_NAME "keypair.seal"
 
@@ -114,11 +117,11 @@ err:
 
 int register_key(client_id *clid, uint8_t *request, size_t requestlen,
                  uint8_t *response, size_t *responselen) {
-    uint8_t *s_key = NULL;      // serialized key
+	uint8_t *s_key = NULL;      // serialized key
     uint8_t *c_response = NULL; // boxed response
     size_t s_keylen;
     size_t c_responselen;
-    struct key_t *key = NULL;
+    struct keydata_t *key = NULL;
     key_id kid;
     uint8_t nonce[crypto_box_NONCEBYTES];
     reencrypt_status ret;
@@ -142,7 +145,7 @@ int register_key(client_id *clid, uint8_t *request, size_t requestlen,
         goto err;
     }
 
-    if ((ret = key_deserialize(&key, s_key, s_keylen)) != REENCRYPT_OK) {
+	if ((ret = key_deserialize(&key, s_key, s_keylen)) != REENCRYPT_OK) {
         goto err;
     }
 
@@ -151,7 +154,6 @@ int register_key(client_id *clid, uint8_t *request, size_t requestlen,
     }
     // source a random nonce for the response
     {
-        sgx_status_t status;
         if (sgx_read_rand(nonce, crypto_box_NONCEBYTES) != SGX_SUCCESS)
         {
             ret = REENCRYPT_FAILED;
@@ -163,20 +165,18 @@ int register_key(client_id *clid, uint8_t *request, size_t requestlen,
                    &c_responselen)) != REENCRYPT_OK) {
         goto err;
     }
-
     // check if we have enough space to output the response
     if (c_responselen > *responselen) {
         ret = REENCRYPT_INCREASE_RESPONSE_SIZE;
         goto err;
     }
-
     // output response
     memcpy(response, c_response, c_responselen);
     *responselen = c_responselen;
 
     free(c_response);
     free(s_key);
-    free(key);
+	free(key);
     return REENCRYPT_OK;
 err:
     free(c_response);
@@ -189,7 +189,7 @@ err:
 int reencrypt(client_id *clid, uint8_t *request, size_t requestlen,
               uint8_t *response, size_t *responselen) {
     key_id keyIDin, keyIDout;
-    struct key_t *keyin = NULL, *keyout = NULL;
+    struct keydata_t *keyin = NULL, *keyout = NULL;
     uint8_t *p_request = NULL;
     size_t p_requestlen;
     uint8_t *m = NULL, *c = NULL, *c2 = NULL, *c_response = NULL;
@@ -227,7 +227,7 @@ int reencrypt(client_id *clid, uint8_t *request, size_t requestlen,
     }
 
     // keyin and keyout need to be key_free'd
-    if ((ret = check_policy(&keyin, &keyout, clid, keyIDin, keyIDout)) !=
+    if ((ret = check_policy(&keyin, &keyout, *clid, keyIDin, keyIDout)) !=
         REENCRYPT_OK) {
         goto err;
     }
@@ -254,7 +254,6 @@ int reencrypt(client_id *clid, uint8_t *request, size_t requestlen,
 
     // source a random nonce for the response
     {
-        sgx_status_t status;
         if (sgx_read_rand(nonce, crypto_box_NONCEBYTES) != SGX_SUCCESS)
         {
             ret = REENCRYPT_FAILED;
@@ -295,7 +294,7 @@ err:
 
 /* REENCRYPT: Encryption function */
 reencrypt_status encrypt(uint8_t **c, size_t *clen, const uint8_t *m,
-                         const size_t mlen, const struct key_t *key) {
+                         const size_t mlen, const struct keydata_t *key) {
     uint8_t *temp = NULL;
     uint32_t templen;
 
@@ -306,7 +305,7 @@ reencrypt_status encrypt(uint8_t **c, size_t *clen, const uint8_t *m,
     if (temp == NULL)
         goto err;
     // encrypt
-    if (aes128gcm_encrypt(key->key, key->keylen, m, mlen, temp, templen)) {
+    if (aes128gcm_encrypt(&key->key, m, mlen, temp, templen)) {
         goto err;
     }
     *c = temp;
@@ -320,7 +319,7 @@ err:
 
 /* REENCRYPT: Decryption function */
 reencrypt_status decrypt(uint8_t **m, size_t *mlen, const uint8_t *c,
-                         const size_t clen, const struct key_t *key) {
+                         const size_t clen, const struct keydata_t *key) {
     uint8_t *temp = NULL;
     uint32_t templen;
 
@@ -331,7 +330,7 @@ reencrypt_status decrypt(uint8_t **m, size_t *mlen, const uint8_t *c,
     if (temp == NULL)
         goto err;
     // decrypt
-    if (aes128gcm_decrypt(key->key, key->keylen, c, clen, temp, templen)) {
+    if (aes128gcm_decrypt(&key->key, c, clen, temp, templen)) {
         goto err;
     }
 
