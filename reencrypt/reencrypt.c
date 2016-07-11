@@ -118,7 +118,7 @@ int register_key(client_id *clid, uint8_t *request, size_t requestlen,
     uint8_t *c_response = NULL; // boxed response
     size_t s_keylen;
     size_t c_responselen;
-    struct key_t *key = NULL;
+    struct keydata_t *key = NULL;
     key_id kid;
     uint8_t nonce[crypto_box_NONCEBYTES];
     reencrypt_status ret;
@@ -189,7 +189,7 @@ err:
 int reencrypt(client_id *clid, uint8_t *request, size_t requestlen,
               uint8_t *response, size_t *responselen) {
     key_id keyIDin, keyIDout;
-    struct key_t *keyin = NULL, *keyout = NULL;
+    struct keydata_t *keyin = NULL, *keyout = NULL;
     uint8_t *p_request = NULL;
     size_t p_requestlen;
     uint8_t *m = NULL, *c = NULL, *c2 = NULL, *c_response = NULL;
@@ -295,7 +295,7 @@ err:
 
 /* REENCRYPT: Encryption function */
 reencrypt_status encrypt(uint8_t **c, size_t *clen, const uint8_t *m,
-                         const size_t mlen, const struct key_t *key) {
+                         const size_t mlen, const struct keydata_t *key) {
     uint8_t *temp = NULL;
     uint32_t templen;
 
@@ -320,7 +320,7 @@ err:
 
 /* REENCRYPT: Decryption function */
 reencrypt_status decrypt(uint8_t **m, size_t *mlen, const uint8_t *c,
-                         const size_t clen, const struct key_t *key) {
+                         const size_t clen, const struct keydata_t *key) {
     uint8_t *temp = NULL;
     uint32_t templen;
 

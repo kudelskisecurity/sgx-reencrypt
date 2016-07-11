@@ -42,7 +42,7 @@ reencrypt_status authorized_to(const struct policy_t *p,
     return REENCRYPT_FAILED;
 }
 
-reencrypt_status check_policy(struct key_t **keyin, struct key_t **keyout,
+reencrypt_status check_policy(struct keydata_t **keyin, struct keydata_t **keyout,
                               const client_id *clid, const key_id keyIDin,
                               const key_id keyIDout) {
     reencrypt_status ret = REENCRYPT_FAILED;

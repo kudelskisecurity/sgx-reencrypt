@@ -3,11 +3,12 @@
 
 extern "C" {
 #include "tweetnacl/tweetnacl.h"
-}
 #include "nacl_box.h"
 #include "randombytes.h"
 #include "reencrypt_u.h"
 #include "sgx_urts.h"
+#include "serialize.h"
+}
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -54,7 +55,7 @@ int register_key(const context &ctx, uint8_t *key,
 				 size_t nkeys_from, policy_type keys_to_policy,
 				 key_id *keys_to, size_t nkeys_to, key_id new_key) {
 	uint8_t *keyblob=NULL;
-	uint32_t keybloblen;
+	size_t keybloblen;
 	uint8_t *request_p = NULL;
 	size_t request_plen;
 	// new key id
@@ -68,8 +69,8 @@ int register_key(const context &ctx, uint8_t *key,
 	unsigned char nonce[crypto_box_NONCEBYTES];
 	int error;
 
-	struct key_t *k=(struct key_t*)malloc(sizeof(struct key_t));
-	memset(k, 0, sizeof(struct key_t));
+	struct keydata_t *k=(struct keydata_t*)malloc(sizeof(struct keydata_t));
+	memset(k, 0, sizeof(struct keydata_t));
 
 	k->keylen=keylen;
 	k->key=(uint8_t*)malloc(keylen);
@@ -226,7 +227,7 @@ int main(int argc, char* argv[])
 	uint8_t *response = NULL;
 	uint32_t responselen;
 	int error;
-	struct key_t *k=(struct key_t*)malloc(sizeof(struct key_t));
+	struct keydata_t *k=(struct keydata_t*)malloc(sizeof(struct keydata_t));
 
 	// create enclave
 	if(create_enclave(ctx))

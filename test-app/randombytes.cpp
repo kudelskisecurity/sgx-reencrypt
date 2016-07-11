@@ -2,6 +2,7 @@
 #include <random>
 
 extern "C" void randombytes(unsigned char *b, unsigned long long n) {
+#ifdef __MSC_VER
 	std::random_device gen;
 	const size_t sample_bytes = sizeof(std::random_device::result_type);
 	int i;
@@ -9,4 +10,5 @@ extern "C" void randombytes(unsigned char *b, unsigned long long n) {
 		std::random_device::result_type sample = gen();
 		memcpy(&b[i], &sample, ((n-i) < sample_bytes ? (n-i) : sample_bytes));
 	}
+#endif
 }

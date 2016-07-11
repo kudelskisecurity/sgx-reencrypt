@@ -48,7 +48,7 @@ struct policy_t {
     client_id *authorized_clients;
 };
 // key structure
-struct key_t {
+struct keydata_t {
     uint32_t keylen;
     uint64_t expiration_date;
     uint8_t *key;

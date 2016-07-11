@@ -13,15 +13,15 @@
         input:
                 clid, pointer to the client_id performing the action
                 key_from, key_id identifying the key encrypting from
-                key_to, key_id identifying the key encrypting to
+                keydata_to, key_id identifying the key encrypting to
         output:
                 keyin, key referenced by keyIDin, if valid. NULL otherwise
                 keyin, key referenced by keyIDout, if valid. NULL otherwise
 
 */
-reencrypt_status check_policy(struct key_t **keyin, struct key_t **keyout,
+reencrypt_status check_policy(struct keydata_t **keyin, struct keydata_t **keyout,
                               const client_id *clid, const key_id key_from,
-                              const key_id key_to);
+                              const key_id keydata_to);
 
 /* serialize a policy
         input:

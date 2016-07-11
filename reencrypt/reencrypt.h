@@ -25,7 +25,7 @@ struct reencrypt_context {
 
 // encryption and decryption functions
 reencrypt_status encrypt(uint8_t **c, size_t *clen, const uint8_t *m,
-                         const size_t mlen, const struct key_t *key);
+                         const size_t mlen, const struct keydata_t *key);
 reencrypt_status decrypt(uint8_t **m, size_t *mlen, const uint8_t *c,
-                         const size_t clen, const struct key_t *key);
+                         const size_t clen, const struct keydata_t *key);
 

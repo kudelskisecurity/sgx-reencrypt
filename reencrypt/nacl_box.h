@@ -4,6 +4,7 @@
 #include "tweetnacl/tweetnacl.h"
 #include "types.h"
 #include <stddef.h>
+#include <stdint.h>
 
 // FORMAT: [nonce][ciphertext (padding|data)]
 reencrypt_status box(const uint8_t *public_key, const uint8_t *secret_key,
