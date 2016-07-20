@@ -33,6 +33,9 @@ Requests are encrypted using the `crypto_box()` function from TweetNaCl
 (public-key authenticated encryption).  Plaintexts are encrypted using
 AES-GCM.
 
+Responses are encrypted too using `crypto_box()`, and error responses
+include `C` to make them indistinguishable from success responses.
+
 This assumes that keys and a policy have been sealed to the reencrypt
 enclave, as well as the enclave's Curve25519 private key.
 
@@ -92,7 +95,7 @@ On success, the enclave response contains the 16-byte key ID assigned.
 
 #### Key ID generation
 
-At the moment, 16-byte blake2b(key || expiration_date). No salt/nonce.
+At the moment, 16-byte BLAKE2b(key || expiration_date). No salt/nonce.
 See security note 1.
 
 #### Client authentication
