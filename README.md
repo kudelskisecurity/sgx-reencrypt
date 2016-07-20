@@ -5,6 +5,7 @@ insecure as it is. To build secure SGX-based applications, you'll need
 to perform the remote attestation step after being approved as an SGX
 license.
 
+## Introduction
 
 SGX-reencrypt is an SGX-based application that performs symmetric-key
 *proxy reencryption*: SGX-reencrypt runs as a service that receives
@@ -36,71 +37,104 @@ This assumes that keys and a policy have been sealed to the reencrypt
 enclave, as well as the enclave's Curve25519 private key.
 
 
-## API
+## Setup 
 
-Trusted functions (ecalls):
-```
-/* generate channel keypair */
-public int generate_keypair([out, size=32] uint8_t *public_key);
-/* seal/unseal channel keypair */
-public int seal_keypair();
-public int unseal_keypair([out, size=32] uint8_t *public_key);
+### Enclave keypair generation
 
-/* reencryption */
-public int reencrypt([user_check]client_id *clid,
-        [user_check]uint8_t *request, size_t requestlen,
-        [user_check]uint8_t *response,
-        [user_check]size_t *responselen);
+A enclave's TweetNaCl keypair needs to be generated before using it.
+The enclave provides the trusted call `generate_keypair`, that will
+generate a new keypair and output the public key on success. This
+information can be sealed to the filesystem using the trusted call
+`seal_keypair`. After service restart, `unseal_keypair` will try to
+recover the previously sealed keypair.
 
-/* key registration
-        input:
-                - client id
-                - boxed serialized key
+Once an enclave keypair has been generated, the returned public key
+can be distributed amongst clients; it will be used to encrypt each
+request and authenticate responses.
 
-        output:
-                - boxed key id
-*/
-public int register_key([user_check] client_id *clid,
-        [user_check]uint8_t *request, size_t requestlen,
-        [user_check]uint8_t *response,
-        [user_check]size_t *responselen);
-```
+## Usage
 
-Untrusted functions (ocalls):
+SGX-reencrypt functionality is accessed through two available trusted
+calls: `register_key` and `reencrypt`. Both accept an encrypted 
+request and returns an encrypted response that can be opened using
+the client private key and the enclave public key.
 
-```
+### Key registration
 
-// filesystem functions. return 0 if success, 1 otherwise
-int untrusted_fs_store([in, size=namelen] char *name, size_t namelen, [in, size=datalen] uint8_t *data, size_t datalen);
-int untrusted_fs_load([in, size=namelen] char *name, size_t namelen, [out] uint8_t **data, [out] size_t *datalen);
-void untrusted_fs_free([user_check] uint8_t *data);
-// unsafe time
-uint64_t time([user_check] uint64_t *timer);
-```
+Key registration is the process by which the symmetric keys are 
+provisioned to the enclave. These keys can later be used during
+reencryption requests to decrypt and encrypt given ciphertexts.
 
+Each key registration request is composed by an encrypted datagram,
+using the enclave public key, containing these fields:
 
+ * `key`, 16 bytes: 128bit AES key used for encryption and decryption
 
+ * `expiration_date`, 8 bytes: todo
+
+ * `policy_from`, 1 byte: ...
+
+ * `n_keys_from`, 4 bytes: ...
+
+ * `policy_to`, 1 byte: ...
+
+ * `n_keys_to`, 4 bytes: ...
+
+ * `n_authorized_clients`, 4 bytes: ...
+
+ * `keys_from`, [16 bytes]: ...
+
+ * `keys_to`, [16 bytes]: ...
+
+ * `authorized_clients`, [32 bytes]: ...
+
+On success, the enclave response contains the 16-byte key ID assigned.
+
+#### Key ID generation
+
+At the moment, 16-byte blake2b(key || expiration_date). No salt/nonce.
+See security note 1.
+
+#### Client authentication
+
+Each authorized client is authenticated using its TweetNaCl public key.
+
+### Reencryption
+
+Reencryption is the process by which a ciphertext is decrypted with
+an input symmetric key and encrypted with an output symmetric key, 
+both previously registered and identified by their key IDs.
+
+Each key reencryption request is composed by an encrypted datagram,
+using the enclave public key, containing these fields:
+
+ [keyin  (16bytes)][keyout (16bytes)][IV (12bytes)]
+ [MAC    (16bytes)][ciphertext               (...)]
+
+On success, the enclave response contains a new ciphertext.
+
+#### Policy check
+
+Given a reencryption request, a set of policies is enforced:
+
+ 1. Does key-in allows encryption to key-out?
+
+ 2. Does key-out allows encryption from key-in?
+
+ 3. Is the client authorized to use key-in and key-out?
+
+ 4. Is the current timestamp lower than key-in and key-out exp. date?
+    See security note 2.
+
+Only when every policy is passed the reencryption is computed.
 
 ## Security
 
-1. Provisioned keys will only be exposed during provisioning. If the system is
-   compromised at the moment of key provisioning, keys can be intercepted.
-   After provisioning, keys will only remain in plaintext inside an enclave,
-   and its security depends on the assumption that SGX is secure.
+(1) As Key ID is deterministic, a party knowing a symmetric key and
+expiration date could overwrite the registered key and replace the
+policy with a malicious one without the user noticing it.
 
-2. Reencrypted plaintext will only be handled inside an enclave. Its
-   security depends on the assumption that SGX is secure and the assumption
-   that input and output keys has not been compromised.
-
-3. Reencryption requests hide the ciphertext and key ids, and responses
-   attempt to make errors indistinguishable from successes.
-
-3. Reencryption leaks the approximate plaintext length.
-
-4. The API provides no security on protecting the plaintext: as
-   the `register_key()` function is exposed publicly, a privileged
-   adversary can register an arbitrary key under her control, intercept
-   ciphertexts during reencrypt() invokation and invoke again with the
-   intercepted ciphertext and the `key_id` under her control.
-
-5. `register_key()` is not thread-safe.
+(2) At the moment, there's no trusted absolute time source inside the
+enclave, and the timestamp is requested through an untrusted call to
+the system, rendering the expiration date policy forgeable by a 
+malicious enclave host.
