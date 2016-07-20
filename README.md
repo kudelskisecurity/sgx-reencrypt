@@ -3,7 +3,11 @@
 **Disclaimer**: This is a PoC of an SGX-based application, but is
 insecure as it is. To build secure SGX-based applications, you'll need
 to perform the remote attestation step after being approved as an SGX
-licensee.
+licensee. Even if you managed to get an attested release-mode enclave
+from our code you shouldn't use it to protect real stuff; neither the
+architecture nor the code have been properly reviewed, hence they're
+probably not secure.
+
 
 ## Introduction
 
@@ -57,16 +61,16 @@ request and authenticate responses.
 
 ## Usage
 
-SGX-reencrypt functionality is accessed through two available trusted
-calls: `register_key` and `reencrypt`. Both accept an encrypted 
-request and returns an encrypted response that can be opened using
-the client private key and the enclave public key.
+The SGX-reencrypt functionality is accessed through two trusted calls
+(ecalls): `register_key()` and `reencrypt()`. Both accept an encrypted
+request and returns an encrypted response that can be opened using the
+client private key and the enclave public key.
 
 ### Key registration
 
-Key registration is the process by which the symmetric keys are 
-provisioned to the enclave. These keys can later be used during
-reencryption requests to decrypt and encrypt given ciphertexts.
+Key registration is the process by which symmetric keys are provisioned
+to the enclave. These keys can later be used during reencryption
+requests to decrypt and encrypt given ciphertexts.
 
 Each key registration request is composed by an encrypted datagram,
 using the enclave public key, containing these fields:
