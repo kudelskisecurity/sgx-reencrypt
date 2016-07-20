@@ -3,7 +3,7 @@
 **Disclaimer**: This is a PoC of an SGX-based application, but is
 insecure as it is. To build secure SGX-based applications, you'll need
 to perform the remote attestation step after being approved as an SGX
-license.
+licensee.
 
 ## Introduction
 
