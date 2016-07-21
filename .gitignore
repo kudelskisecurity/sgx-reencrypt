@@ -1,3 +1,7 @@
+# edger8r generated files
+reencrypt/reencrypt_t.[hc]
+test-app/reencrypt_u.[hc]
+
 # Compiled Object files
 *.slo
 *.lo
