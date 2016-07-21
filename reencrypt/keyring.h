@@ -22,7 +22,6 @@ reencrypt_status get_key(const key_id id, struct keydata_t **key);
 // reencrypt_status put_key(const key_id id, const struct keydata_t *key);
 reencrypt_status put_key(const struct keydata_t *key, key_id id);
 
-
 /* frees allocated memory */
 void key_free(struct keydata_t *k);
 

@@ -37,4 +37,3 @@ reencrypt_status seal(const uint8_t *aad, const size_t aadlen,
 reencrypt_status unseal(const uint8_t *sealed, const size_t sealedlen,
                         uint8_t **aad, size_t *aadlen, uint8_t **plain,
                         size_t *plainlen);
-

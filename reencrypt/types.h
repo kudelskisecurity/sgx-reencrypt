@@ -34,8 +34,8 @@ typedef enum policy_type { POLICY_LIST, POLICY_ALL } policy_type;
 
 // key structure
 struct keydata_t {
-	sgx_aes_gcm_128bit_key_t key;
-	uint64_t expiration_date;
+    sgx_aes_gcm_128bit_key_t key;
+    uint64_t expiration_date;
     // Keys-to-encrypt-from policy: ALL, LIST
     policy_type policy_from;
     // # keys accepted to encrypt from

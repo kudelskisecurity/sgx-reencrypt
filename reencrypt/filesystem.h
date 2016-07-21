@@ -10,4 +10,3 @@ reencrypt_status fs_store(char *name, size_t namelen, uint8_t *data,
 reencrypt_status fs_load(char *name, size_t namelen, uint8_t **data,
                          size_t *datalen);
 reencrypt_status fs_free(uint8_t *data);
-

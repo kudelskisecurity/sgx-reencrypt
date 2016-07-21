@@ -19,7 +19,6 @@
                 keyin, key referenced by keyIDout, if valid. NULL otherwise
 
 */
-reencrypt_status check_policy(struct keydata_t **keyin, struct keydata_t **keyout,
-                              const client_id clid, const key_id key_from,
-                              const key_id keydata_to);
-
+reencrypt_status check_policy(struct keydata_t **keyin,
+                              struct keydata_t **keyout, const client_id clid,
+                              const key_id key_from, const key_id keydata_to);

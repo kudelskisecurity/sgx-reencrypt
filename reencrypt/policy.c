@@ -6,7 +6,7 @@ static reencrypt_status authorized_clid(const struct keydata_t *k,
     for (i = 0; i < k->n_authorized_clients; ++i) {
         // break if clid is found
         if (!memcmp(clid, k->authorized_clients[i], sizeof(client_id))) {
-			return REENCRYPT_OK;
+            return REENCRYPT_OK;
         }
     }
     return REENCRYPT_FAILED;
@@ -42,9 +42,9 @@ reencrypt_status authorized_to(const struct keydata_t *k,
     return REENCRYPT_FAILED;
 }
 
-reencrypt_status check_policy(struct keydata_t **keyin, struct keydata_t **keyout,
-                              const client_id clid, const key_id keyIDin,
-                              const key_id keyIDout) {
+reencrypt_status check_policy(struct keydata_t **keyin,
+                              struct keydata_t **keyout, const client_id clid,
+                              const key_id keyIDin, const key_id keyIDout) {
     reencrypt_status ret = REENCRYPT_FAILED;
     if ((get_key(keyIDin, keyin) == REENCRYPT_FAILED) ||
         (get_key(keyIDout, keyout) == REENCRYPT_FAILED)) {

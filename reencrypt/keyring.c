@@ -13,8 +13,7 @@
 reencrypt_status compute_key_id(const struct keydata_t *key, key_id id) {
     blake2b_state bs;
     // key_id needs to be set as hash(key_value|expiration)
-    uint32_t tmplen =
-        sizeof(key->key) + sizeof(key->expiration_date);
+    uint32_t tmplen = sizeof(key->key) + sizeof(key->expiration_date);
     uint8_t *tmp = (uint8_t *)malloc(tmplen);
     if (tmp == NULL)
         goto err;
@@ -60,14 +59,14 @@ reencrypt_status get_key(const key_id id, struct keydata_t **key) {
         goto err;
     }
     // 3. deserialize
-    if(key_deserialize(&out, serialized, serializedlen) != REENCRYPT_OK) {
-		goto err;
-	}
+    if (key_deserialize(&out, serialized, serializedlen) != REENCRYPT_OK) {
+        goto err;
+    }
 
     *key = out;
-	fs_free(sealed);
+    fs_free(sealed);
     free(aad);
-	free(serialized);
+    free(serialized);
     return REENCRYPT_OK;
 err:
     fs_free(sealed);
@@ -84,11 +83,11 @@ reencrypt_status put_key(const struct keydata_t *key, key_id id) {
     int i;
 
     // 1. serialize (malloc inside)
-	if(key_serialize(key, &serialized, &serializedlen) != REENCRYPT_OK) {
-		goto err;
-	}
+    if (key_serialize(key, &serialized, &serializedlen) != REENCRYPT_OK) {
+        goto err;
+    }
 
-	// calculate key_id (hash key|expiration)
+    // calculate key_id (hash key|expiration)
     if (compute_key_id(key, tmpid) != REENCRYPT_OK) {
         goto err;
     }
@@ -108,7 +107,7 @@ reencrypt_status put_key(const struct keydata_t *key, key_id id) {
     // output filename
     memcpy(id, tmpid, 16);
     free(serialized);
-	free(sealed);
+    free(sealed);
     return REENCRYPT_OK;
 err:
     free(serialized);

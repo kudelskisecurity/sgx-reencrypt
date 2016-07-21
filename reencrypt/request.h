@@ -43,4 +43,3 @@ reencrypt_status pack_request(const key_id keyIDin, const key_id keyIDout,
 reencrypt_status unpack_request(const uint8_t *request, const size_t requestlen,
                                 key_id *keyIDin, key_id *keyIDout, uint8_t **c,
                                 size_t *clen);
-

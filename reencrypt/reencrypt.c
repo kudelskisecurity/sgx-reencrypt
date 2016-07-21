@@ -2,7 +2,6 @@
 #include "reencrypt.h"
 #include "serialize.h"
 
-
 #define KEYPAIR_NAME "keypair.seal"
 
 // global context
@@ -117,7 +116,7 @@ err:
 
 int register_key(client_id *clid, uint8_t *request, size_t requestlen,
                  uint8_t *response, size_t *responselen) {
-	uint8_t *s_key = NULL;      // serialized key
+    uint8_t *s_key = NULL;      // serialized key
     uint8_t *c_response = NULL; // boxed response
     size_t s_keylen;
     size_t c_responselen;
@@ -145,7 +144,7 @@ int register_key(client_id *clid, uint8_t *request, size_t requestlen,
         goto err;
     }
 
-	if ((ret = key_deserialize(&key, s_key, s_keylen)) != REENCRYPT_OK) {
+    if ((ret = key_deserialize(&key, s_key, s_keylen)) != REENCRYPT_OK) {
         goto err;
     }
 
@@ -154,8 +153,7 @@ int register_key(client_id *clid, uint8_t *request, size_t requestlen,
     }
     // source a random nonce for the response
     {
-        if (sgx_read_rand(nonce, crypto_box_NONCEBYTES) != SGX_SUCCESS)
-        {
+        if (sgx_read_rand(nonce, crypto_box_NONCEBYTES) != SGX_SUCCESS) {
             ret = REENCRYPT_FAILED;
             goto err;
         }
@@ -176,7 +174,7 @@ int register_key(client_id *clid, uint8_t *request, size_t requestlen,
 
     free(c_response);
     free(s_key);
-	free(key);
+    free(key);
     return REENCRYPT_OK;
 err:
     free(c_response);
@@ -254,8 +252,7 @@ int reencrypt(client_id *clid, uint8_t *request, size_t requestlen,
 
     // source a random nonce for the response
     {
-        if (sgx_read_rand(nonce, crypto_box_NONCEBYTES) != SGX_SUCCESS)
-        {
+        if (sgx_read_rand(nonce, crypto_box_NONCEBYTES) != SGX_SUCCESS) {
             ret = REENCRYPT_FAILED;
             goto err;
         }
