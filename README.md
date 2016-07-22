@@ -46,8 +46,6 @@ enclave, as well as the enclave's Curve25519 private key.
 
 ## Setup 
 
-### Enclave keypair generation
-
 A enclave's TweetNaCl keypair needs to be generated before using it.
 The enclave provides the trusted call `generate_keypair`, that will
 generate a new keypair and output the public key on success. This
@@ -108,14 +106,16 @@ Each authorized client is authenticated using its TweetNaCl public key.
 
 ### Reencryption
 
-Reencryption is the process by which a ciphertext is decrypted with
-an input symmetric key and encrypted with an output symmetric key, 
-both previously registered and identified by their key IDs.
+Reencryption is the process by which, given a ciphertext, `c`, and a
+pair of previously registered key identifiers, `k1id`, `k2id`, the user
+gets the new ciphertext `encrypt(k2, decrypt(k1, c))`. This process
+allows to reencrypt a given ciphertext without exposing the plaintext
+nor the keys to observers out of the enclave.
 
 Each key reencryption request is composed by an encrypted datagram,
 using the enclave public key, containing these fields:
 
- [keyin  (16bytes)][keyout (16bytes)][IV (12bytes)]
+ [K1ID   (16bytes)][K2ID   (16bytes)][IV (12bytes)]
  [MAC    (16bytes)][ciphertext               (...)]
 
 On success, the enclave response contains a new ciphertext.
@@ -136,6 +136,19 @@ Given a reencryption request, a set of policies is enforced:
 Only when every policy is passed the reencryption is computed.
 
 ## Security
+
+ * An eavesdropper on the channel shouldn't be able to extract clear
+   information about the requests nor the responses (only relative
+   data, as request size).
+
+ * An attacker that interacts with the enclave shouldn't be able to
+   extract the keys.
+
+ * Non-authorized users shouldn't be able to use registered keys.
+
+ * Ciphertexts should be indistinguishable.
+
+## Security notes
 
 (1) As Key ID is deterministic, a party knowing a symmetric key and
 expiration date could overwrite the registered key and replace the
