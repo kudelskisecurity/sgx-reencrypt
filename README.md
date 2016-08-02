@@ -158,3 +158,9 @@ policy with a malicious one without the user noticing it.
 enclave, and the timestamp is requested through an untrusted call to
 the system, rendering the expiration date policy forgeable by a 
 malicious enclave host.
+
+## Intellectual property
+
+Copyright (c) 2016, Nagravision S.A.
+
+Code under GPLv3
