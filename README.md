@@ -73,32 +73,22 @@ requests to decrypt and encrypt given ciphertexts.
 Each key registration request is composed by an encrypted datagram,
 using the enclave public key, containing these fields:
 
- * `key`, 16 bytes: 128bit AES key used for encryption and decryption
-
- * `expiration_date`, 8 bytes: todo
-
- * `policy_from`, 1 byte: ...
-
- * `n_keys_from`, 4 bytes: ...
-
- * `policy_to`, 1 byte: ...
-
- * `n_keys_to`, 4 bytes: ...
-
- * `n_authorized_clients`, 4 bytes: ...
-
- * `keys_from`, [16 bytes]: ...
-
- * `keys_to`, [16 bytes]: ...
-
- * `authorized_clients`, [32 bytes]: ...
+ * `key`, 16 bytes
+ * `expiration_date`, 8 bytes
+ * `policy_from`, 1 byte
+ * `n_keys_from`, 4 bytes
+ * `policy_to`, 1 byte
+ * `n_keys_to`, 4 bytes
+ * `n_authorized_clients`, 4 bytes
+ * `keys_from`, [16 bytes]
+ * `keys_to`, [16 bytes]
+ * `authorized_clients`, [32 bytes]
 
 On success, the enclave response contains the 16-byte key ID assigned.
 
 #### Key ID generation
 
-At the moment, 16-byte BLAKE2b(key || expiration_date). No salt/nonce.
-See security note 1.
+At the moment, 16-byte value `BLAKE2b(key || expiration_date)`. See security note 1.
 
 #### Client authentication
 
@@ -115,8 +105,10 @@ nor the keys to observers out of the enclave.
 Each key reencryption request is composed by an encrypted datagram,
 using the enclave public key, containing these fields:
 
- [K1ID   (16bytes)][K2ID   (16bytes)][IV (12bytes)]
- [MAC    (16bytes)][ciphertext               (...)]
+```
+ [K1ID   (16B)][K2ID   (16B)][IV (12B)]
+ [MAC    (16B)][ciphertext       (...)]
+```
 
 On success, the enclave response contains a new ciphertext.
 
@@ -150,11 +142,11 @@ Only when every policy is passed the reencryption is computed.
 
 ## Security notes
 
-(1) As Key ID is deterministic, a party knowing a symmetric key and
+1. As Key ID is deterministic, a party knowing a symmetric key and
 expiration date could overwrite the registered key and replace the
 policy with a malicious one without the user noticing it.
 
-(2) At the moment, there's no trusted absolute time source inside the
+2. At the moment, there's no trusted absolute time source inside the
 enclave, and the timestamp is requested through an untrusted call to
 the system, rendering the expiration date policy forgeable by a 
 malicious enclave host.
