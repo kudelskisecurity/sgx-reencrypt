@@ -41,6 +41,7 @@ ENCLAVE_SRCS := $(wildcard reencrypt/*.c reencrypt/ciphers/*.c \
 ENCLAVE_OBJS := $(ENCLAVE_SRCS:.c=.o) reencrypt/reencrypt_t.o
 
 all: bin/test-app bin/reencrypt.signed.so
+	@mkdir -p bin
 
 ### test-app ###
 
