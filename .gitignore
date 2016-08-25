@@ -31,3 +31,6 @@ test-app/reencrypt_u.[hc]
 *.exe
 *.out
 *.app
+
+# Private key
+*.pem
